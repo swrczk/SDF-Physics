@@ -413,9 +413,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DefaultNamespace.BallSimulation
   ballCount: 10000
-  initialHeight: 20
+  initialHeight: 5
   ballRadius: 0.1
+  zOffsetVariation: 0.5
   planeSize: {x: 10, y: 10}
+  sdfVolume: {fileID: 11400000, guid: a2d0cc35c3d66f14487d209802bff2e5, type: 2}
+  ballMaterial: {fileID: 2100000, guid: 6aff1cebb78366940b253265c9f29ef9, type: 2}
 --- !u!4 &669838345
 Transform:
   m_ObjectHideFlags: 0

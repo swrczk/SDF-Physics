@@ -17,6 +17,7 @@ namespace DefaultNamespace
         public float cellSize;
 
         public float3 gravity;
+        public float friction;
         public float deltaTime;
         public float ballRadius;
         public float restitution;
@@ -40,6 +41,15 @@ namespace DefaultNamespace
 
                 if (vn < 0)
                     velocity -= (1 + restitution) * vn * normal;
+                
+                
+                var vnAfter = math.dot(velocity, normal);
+                var tangential = velocity - vnAfter * normal;
+                velocity = vnAfter * normal + tangential * friction;
+
+                if (math.lengthsq(velocity) < sleepThreshold * sleepThreshold)
+                    velocity = float3.zero;
+                
                 if (math.lengthsq(velocity) < sleepThreshold* sleepThreshold)
                     velocity = float3.zero;
             }
