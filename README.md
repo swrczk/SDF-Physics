@@ -7,6 +7,16 @@ entirely on the C# Job System with Burst — no GameObjects, Rigidbodies,
 Colliders, or MonoBehaviours per ball — and all balls are drawn in a
 single GPU-instanced draw call.
 
+## Demo
+
+A short screen recording of the simulation running is included in the
+project root: [`recording.mp4`](recording.mp4).
+
+<video src="recording.mp4" controls width="100%"></video>
+
+<!-- The tag above inline-plays the video on renderers that support local
+     HTML5 video in Markdown (e.g. GitHub); otherwise use the link above it. -->
+
 ## How to run
 
 1. Open the project in Unity 6.3 (URP).
