@@ -11,5 +11,7 @@ namespace DefaultNamespace
         public int resolutionX;
         public int resolutionY;
         public int resolutionZ;
+        
+        public float cellSize => ( boundsMax.x -  boundsMin.x) / resolutionX;
     }
 }
