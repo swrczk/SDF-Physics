@@ -10,6 +10,8 @@ single GPU-instanced draw call.
 ## Demo
 
 ![Simulation demo](recording_demo.gif)
+
+
 The GIF above is generated from the full recording; for the original,
 full quality/frame-rate capture see
 [`recording.mp4`](recording.mp4) in the project root.
