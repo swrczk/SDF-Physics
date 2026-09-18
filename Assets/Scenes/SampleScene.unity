@@ -415,7 +415,7 @@ MonoBehaviour:
   ballCount: 10000
   initialHeight: 5
   ballRadius: 0.1
-  zOffsetVariation: 0.5
+  zOffsetVariation: 2
   planeSize: {x: 10, y: 10}
   sdfVolume: {fileID: 11400000, guid: a2d0cc35c3d66f14487d209802bff2e5, type: 2}
   ballMaterial: {fileID: 2100000, guid: 6aff1cebb78366940b253265c9f29ef9, type: 2}
@@ -446,6 +446,7 @@ GameObject:
   - component: {fileID: 812461770}
   - component: {fileID: 812461769}
   - component: {fileID: 812461768}
+  - component: {fileID: 812461772}
   m_Layer: 0
   m_Name: Plane
   m_TagString: Untagged
@@ -547,6 +548,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &812461772
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 812461767}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd0beb1c527b01346b4feb0b1de08a2a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DefaultNamespace.SdfPlaneMarker
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -652,6 +665,7 @@ GameObject:
   - component: {fileID: 1557216316}
   - component: {fileID: 1557216315}
   - component: {fileID: 1557216314}
+  - component: {fileID: 1557216318}
   m_Layer: 0
   m_Name: Cylinder
   m_TagString: Untagged
@@ -749,11 +763,23 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 1, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1557216318
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1557216313}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e0496a096d805d4e97e3ca2a028eb22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DefaultNamespace.SdfCylinderMarker
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

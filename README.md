@@ -25,16 +25,37 @@ functions for the plane and the capped cylinder (combined with a CSG
 `min()` union) — it does not read the scene at runtime and does not react
 to geometry moved or resized while playing.
 
+The process is **not hardcoded to fixed shape values**: the plane's
+height and the cylinder's center/radius/height are read at bake time from
+the actual `Transform`s of the objects in the scene, via two marker
+components (`SdfPlaneMarker`, `SdfCylinderMarker`) — the baker finds
+whichever objects carry these components rather than assuming fixed
+numbers or a fixed name. Moving, raising/lowering, or resizing the plane
+or the cylinder in the editor and re-baking picks up the new shape
+correctly. What *is* still a fixed, manually-chosen constant is the bake
+volume itself (bounds and resolution, see below) and the cylinder's
+rotation is not accounted for (the formula assumes it stands upright, as
+in the given scene).
+
 - Menu: **Tools > SDF > Bake Scene** (`Assets/Scripts/Editor/SdfBaker.cs`).
-- Re-run it whenever the plane or cylinder's position, scale, or the
-  bake bounds change.
+- Both the plane and the cylinder object in the scene must have their
+  respective marker component attached (`SdfPlaneMarker` /
+  `SdfCylinderMarker`) — if either is missing, the bake logs an error and
+  aborts rather than silently baking wrong or stale geometry.
+- Re-run the bake whenever the plane or cylinder's position or scale
+  changes, or whenever the bake bounds/resolution constants below
+  change. Editing the transform or the scene does **not** trigger a
+  re-bake automatically — the SDF only updates when the menu item is run
+  again.
 - The bake is idempotent: it deletes and recreates both output assets
   each time, so it's safe to run repeatedly.
-- Current bake settings: bounds `(-5.3, -0.3, -5.3)` to `(5.3, 2.3, 5.3)`,
-  resolution `106 x 26 x 106`, cell size `0.1`. The bounds wrap the
-  10x10 plane and the cylinder with roughly half a ball-radius of margin
-  on every side, so a falling ball always has valid field data around it
-  before it makes contact.
+- Current bake volume settings: bounds `(-5.3, -0.3, -5.3)` to
+  `(5.3, 2.3, 5.3)`, resolution `106 x 26 x 106`, cell size `0.1`. These
+  are still fixed constants in `SdfBaker.cs`, not derived from the scene —
+  the bounds wrap the 10x10 plane and the cylinder with roughly half a
+  ball-radius of margin on every side, but if the cylinder is moved or
+  resized enough to fall outside this fixed volume, the bounds need to be
+  widened by hand.
 
 ## Approach
 
@@ -47,6 +68,20 @@ to interpret it — `boundsMin`/`boundsMax`, resolution per axis, and a
 computed `cellSize` property. Keeping metadata and data in separate
 assets means the metadata can be inspected/tweaked without touching the
 (large) texture asset.
+
+The plane and cylinder's shape parameters are not hardcoded constants:
+`SdfBaker.Bake()` looks up `SdfPlaneMarker`/`SdfCylinderMarker` in the
+scene via `Object.FindFirstObjectByType`, then reads the plane's height
+and the cylinder's center/radius/height straight from their `Transform`s
+(`localScale.x * 0.5f` for radius and `localScale.y * 2f` for height,
+matching Unity's default primitive dimensions at scale 1). The one
+subtlety: the cylinder's analytic distance function expects `center` to
+be the cylinder's *base* (the point where it touches the ground), while a
+Unity primitive's pivot sits at its geometric middle — so the pivot's
+world position is shifted down by half the (current, scaled) height
+before being passed in. Only the bake *volume* (bounds/resolution/cell
+size) remains a fixed, hand-tuned constant, and the cylinder's rotation
+is not read (assumed upright).
 
 ### Bridging into Burst (`BallSimulation.cs`, `SdfSampler.cs`)
 

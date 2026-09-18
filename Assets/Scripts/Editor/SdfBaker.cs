@@ -8,7 +8,10 @@ namespace DefaultNamespace.Editor
 {
     public static class SdfBaker
     {
-        //dla walca 5height, radius 0.5, 
+        // Bounds i rozdzielczość bake'a zostają ręcznie dobranymi stałymi - to świadomy
+        // wybór (kompromis rozmiar/dokładność), nie coś, co da się "wyczytać" ze sceny.
+        // Kształt i pozycja płaszczyzny/walca - te owszem, są teraz brane z transformów
+        // obiektów w scenie (SdfPlaneMarker / SdfCylinderMarker), patrz niżej.
         private const float CellSize = 0.1f;
         private static float3 _boundMin = new float3(-5.3f, -0.3f, -5.3f);
         private static float3 _boundMax = new float3(5.3f, 2.3f, 5.3f);
@@ -19,6 +22,31 @@ namespace DefaultNamespace.Editor
         [MenuItem("Tools/SDF/BakeScene")]
         public static void Bake()
         {
+            var planeMarker = Object.FindFirstObjectByType<SdfPlaneMarker>();
+            var cylinderMarker = Object.FindFirstObjectByType<SdfCylinderMarker>();
+            if (planeMarker == null || cylinderMarker == null)
+            {
+                Debug.LogError("SdfBaker: brakuje SdfPlaneMarker i/lub SdfCylinderMarker w scenie - " +
+                                "dodaj te komponenty do obiektów płaszczyzny i walca. Bake przerwany.");
+                return;
+            }
+
+            // Domyślny Plane Unity leży w lokalnej płaszczyźnie XZ - traktujemy go jako
+            // nieskończoną półprzestrzeń na wysokości jego transformu (bez rotacji).
+            var planeHeight = planeMarker.transform.position.y;
+
+            // Domyślny Cylinder Unity ma radius=0.5 i height=2 przy scale=(1,1,1) -
+            // stąd mnożniki. Rotacja walca nie jest uwzględniana.
+            var cylinderTransform = cylinderMarker.transform;
+            var cylinderRadius = cylinderTransform.localScale.x * 0.5f;
+            var cylinderHeight = cylinderTransform.localScale.y * 2f;
+
+            // DistanceToCylinder liczy "center" jako PODSTAWĘ walca (punkt na ziemi),
+            // nie jego geometryczny środek - stąd wewnątrz formuły jest "- height*0.5f".
+            // Pivot obiektu w Unity siedzi natomiast w środku mesha, więc trzeba go
+            // przesunąć w dół o połowę (aktualnej, przeskalowanej!) wysokości.
+            var cylinderCenter = (float3)cylinderTransform.position - new float3(0, cylinderHeight * 0.5f, 0);
+
             var resX = Mathf.RoundToInt((_boundMax.x - _boundMin.x) / CellSize);
             var resY = Mathf.RoundToInt((_boundMax.y - _boundMin.y) / CellSize);
             var resZ = Mathf.RoundToInt((_boundMax.z - _boundMin.z) / CellSize);
@@ -33,10 +61,10 @@ namespace DefaultNamespace.Editor
                 {
                     for (var x = 0; x < resX; x++)
                     {
-                        var worldPosition = IndexToWorldPosition(x, y, z);
+                        var worldPosition = SdfUtils.GridToWorld(x, y, z, _boundMin, CellSize);
                         var distance = Mathf.Min(
-                            DistanceToPlane(worldPosition),
-                            DistanceToCylinder(worldPosition, float3.zero, 0.5f, 2f)
+                            DistanceToPlane(worldPosition, planeHeight),
+                            DistanceToCylinder(worldPosition, cylinderCenter, cylinderRadius, cylinderHeight)
                         );
                         data[index] = distance;
                         index++;
@@ -45,9 +73,10 @@ namespace DefaultNamespace.Editor
             }
 
             var testIndex = new int3(60, 15, 60);
-            var testWorldPos = IndexToWorldPosition(testIndex.x, testIndex.y, testIndex.z);
-            var expected = math.min(DistanceToPlane(testWorldPos), DistanceToCylinder(testWorldPos, float3.zero, 0.5f, 2f));
-            var flatIndex = WorldPositionToIndex(testIndex.x, testIndex.y, testIndex.z, resX, resY);
+            var testWorldPos = SdfUtils.GridToWorld(testIndex.x, testIndex.y, testIndex.z, _boundMin, CellSize);
+            var expected = math.min(DistanceToPlane(testWorldPos, planeHeight),
+                DistanceToCylinder(testWorldPos, cylinderCenter, cylinderRadius, cylinderHeight));
+            var flatIndex = SdfUtils.Flatten(testIndex.x, testIndex.y, testIndex.z, resX, resY);
             Assert.AreApproximatelyEqual(expected, data[flatIndex]);
 
             texture.SetPixelData(data, 0);
@@ -83,24 +112,7 @@ namespace DefaultNamespace.Editor
                 AssetDatabase.DeleteAsset(path);
         }
 
-        private static float3 IndexToWorldPosition(int x, int y, int z)
-        {
-            var index = new float3(x, y, z);
-            return _boundMin + (index + 0.5f) * CellSize;
-        }
-
-        private static int WorldPositionToIndex(int x, int y, int z, int resX, int resY)
-        {
-            return x + y * resX + z * resX * resY;
-        }
-
-        private static int3 WorldPositionToGridIndex(float3 worldPosition)
-        {
-            var local = (worldPosition - _boundMin) / CellSize - 0.5f;
-            return new int3(math.round(local));
-        }
-
-        private static float DistanceToPlane(float3 plane) => plane.y;
+        private static float DistanceToPlane(float3 worldPos, float planeHeight) => worldPos.y - planeHeight;
 
         private static float DistanceToCylinder(float3 p, float3 center, float radius, float height)
         {
