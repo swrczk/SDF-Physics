@@ -10,11 +10,6 @@ single GPU-instanced draw call.
 ## Demo
 
 ![Simulation demo](recording_demo.gif)
-
-GitHub's Markdown renderer strips `<video>` tags that point at a file
-inside the repo (it only inline-plays video uploaded through its own web
-UI, which produces a `github.com/user-attachments/...` link), so a GIF
-is the reliable way to get something that actually plays inline here.
 The GIF above is generated from the full recording; for the original,
 full quality/frame-rate capture see
 [`recording.mp4`](recording.mp4) in the project root.
