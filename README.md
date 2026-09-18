@@ -9,13 +9,15 @@ single GPU-instanced draw call.
 
 ## Demo
 
-A short screen recording of the simulation running is included in the
-project root: [`recording.mp4`](recording.mp4).
+![Simulation demo](recording_demo.gif)
 
-<video src="recording.mp4" controls width="100%"></video>
-
-<!-- The tag above inline-plays the video on renderers that support local
-     HTML5 video in Markdown (e.g. GitHub); otherwise use the link above it. -->
+GitHub's Markdown renderer strips `<video>` tags that point at a file
+inside the repo (it only inline-plays video uploaded through its own web
+UI, which produces a `github.com/user-attachments/...` link), so a GIF
+is the reliable way to get something that actually plays inline here.
+The GIF above is generated from the full recording; for the original,
+full quality/frame-rate capture see
+[`recording.mp4`](recording.mp4) in the project root.
 
 ## How to run
 
